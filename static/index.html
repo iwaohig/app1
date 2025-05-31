@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>食事記録アプリ</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 1em;
+      background-color: #f7f7f7;
+    }
+    h1 {
+      text-align: center;
+    }
+    .meal-section {
+      background-color: #fff;
+      border-radius: 10px;
+      padding: 1em;
+      margin-bottom: 1em;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 0.5em;
+    }
+    input[type="number"], input[type="text"] {
+      width: 100%;
+      padding: 0.5em;
+      margin-top: 0.2em;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .totals {
+      font-weight: bold;
+      margin-top: 1em;
+      padding: 1em;
+      background-color: #e0f7fa;
+      border-radius: 10px;
+    }
+    .meal-title {
+      font-size: 1.2em;
+      font-weight: bold;
+      margin-bottom: 0.5em;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      padding: 0.5em;
+      box-sizing: border-box;
+      margin-top: 1em;
+      border-radius: 5px;
+    }
+    button {
+      margin-top: 0.5em;
+      padding: 0.5em 1em;
+      background-color: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1976d2;
+    }
+  </style>
+</head>
+<body>
+  <h1>食事記録アプリ</h1>
+  <div id="app"></div>
+
+  <h2>JSONから読み込み</h2>
+  <textarea id="jsonInput" placeholder="ここにJSONデータを貼り付けてください"></textarea>
+  <button onclick="loadFromJSON()">読み込み</button>
+
+  <script>
+    const mealTypes = ['朝食', '昼食', '夕食', '間食'];
+    const nutrients = ['カロリー', 'たんぱく質', '脂質', '炭水化物', '食物繊維', '塩分'];
+
+    const app = document.getElementById('app');
+    const mealData = {};
+
+    function createMealSection(meal) {
+      const section = document.createElement('div');
+      section.className = 'meal-section';
+      section.innerHTML = `<div class="meal-title">${meal}</div>`;
+      mealData[meal] = {};
+
+      nutrients.forEach(nutrient => {
+        const label = document.createElement('label');
+        label.textContent = nutrient + '：';
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.min = '0';
+        input.step = '0.1';
+        input.placeholder = nutrient + 'の値を入力';
+        input.addEventListener('input', calculateTotal);
+        label.appendChild(input);
+        section.appendChild(label);
+        mealData[meal][nutrient] = input;
+      });
+
+      app.appendChild(section);
+    }
+
+    mealTypes.forEach(createMealSection);
+
+    const totalDiv = document.createElement('div');
+    totalDiv.className = 'totals';
+    totalDiv.id = 'totals';
+    app.appendChild(totalDiv);
+
+    function calculateTotal() {
+      const total = {};
+      nutrients.forEach(n => total[n] = 0);
+      mealTypes.forEach(meal => {
+        nutrients.forEach(nutrient => {
+          const val = parseFloat(mealData[meal][nutrient].value);
+          if (!isNaN(val)) total[nutrient] += val;
+        });
+      });
+
+      totalDiv.innerHTML = '<div>1日の合計</div>' +
+        nutrients.map(n => `<div>${n}：${total[n].toFixed(1)}</div>`).join('');
+    }
+
+    function loadFromJSON() {
+      try {
+        const json = JSON.parse(document.getElementById('jsonInput').value);
+        mealTypes.forEach(meal => {
+          if (json[meal]) {
+            nutrients.forEach(nutrient => {
+              if (json[meal][nutrient] !== undefined) {
+                mealData[meal][nutrient].value = json[meal][nutrient];
+              }
+            });
+          }
+        });
+        calculateTotal();
+      } catch (e) {
+        alert('JSONの形式が正しくありません');
+      }
+    }
+  </script>
+</body>
+</html>

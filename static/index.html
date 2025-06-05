@@ -11,10 +11,10 @@
       padding: 1em;
       background-color: #f7f7f7;
     }
-    h1 {
+    h1, h2 {
       text-align: center;
     }
-    .meal-section {
+    .meal-section, .totals, .summary-section {
       background-color: #fff;
       border-radius: 10px;
       padding: 1em;
@@ -25,25 +25,13 @@
       display: block;
       margin-top: 0.5em;
     }
-    input[type="number"], input[type="text"] {
+    input[type="number"], input[type="text"], input[type="date"] {
       width: 100%;
       padding: 0.5em;
       margin-top: 0.2em;
       box-sizing: border-box;
       border: 1px solid #ccc;
       border-radius: 5px;
-    }
-    .totals {
-      font-weight: bold;
-      margin-top: 1em;
-      padding: 1em;
-      background-color: #e0f7fa;
-      border-radius: 10px;
-    }
-    .meal-title {
-      font-size: 1.2em;
-      font-weight: bold;
-      margin-bottom: 0.5em;
     }
     textarea {
       width: 100%;
@@ -65,6 +53,11 @@
     button:hover {
       background-color: #1976d2;
     }
+    .diff {
+      font-size: 0.9em;
+    }
+    .positive { color: green; }
+    .negative { color: red; }
   </style>
 </head>
 <body>
@@ -75,9 +68,14 @@
   <textarea id="jsonInput" placeholder="ここにJSONデータを貼り付けてください"></textarea>
   <button onclick="loadFromJSON()">読み込み</button>
 
+  <h2>最新の記録（当日・前日）</h2>
+  <button onclick="fetchLatestSummary()">最新データを取得</button>
+  <div id="summaryDisplay" class="summary-section"></div>
+
   <script>
     const mealTypes = ['朝食', '昼食', '夕食', '間食'];
     const nutrients = ['カロリー', 'たんぱく質', '脂質', '炭水化物', '食物繊維', '塩分'];
+    const goals = {"カロリー": 2500, "たんぱく質": 150, "脂質": 70, "炭水化物": 300, "食物繊維": 25, "塩分": 6.5};
 
     const app = document.getElementById('app');
     const mealData = {};
@@ -141,6 +139,34 @@
         calculateTotal();
       } catch (e) {
         alert('JSONの形式が正しくありません');
+      }
+    }
+
+    async function fetchLatestSummary() {
+      const res = await fetch('/summary/latest');
+      const summaryDiv = document.getElementById('summaryDisplay');
+      if (!res.ok) {
+        summaryDiv.innerText = 'データの取得に失敗しました';
+        return;
+      }
+      const data = await res.json();
+      summaryDiv.innerHTML = '';
+      for (const [date, meals] of Object.entries(data)) {
+        const dayTotal = {};
+        nutrients.forEach(n => dayTotal[n] = 0);
+        const mealSummary = Object.entries(meals).map(([meal, values]) => {
+          nutrients.forEach(n => dayTotal[n] += values[n]);
+          return `<strong>${meal}</strong><br>` +
+            nutrients.map(n => `${n}：${values[n]}<br>`).join('');
+        }).join('<br>');
+
+        const goalDiff = nutrients.map(n => {
+          const diff = dayTotal[n] - goals[n];
+          const cls = diff >= 0 ? 'positive' : 'negative';
+          return `<span class="diff ${cls}">${n}：${diff >= 0 ? '+' : ''}${diff.toFixed(1)}</span>`;
+        }).join('<br>');
+
+        summaryDiv.innerHTML += `<h3>${date}</h3>${mealSummary}<br><strong>目標との差</strong><br>${goalDiff}<hr>`;
       }
     }
   </script>

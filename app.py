@@ -1,40 +1,48 @@
-from flask import Flask, request, jsonify, send_from_directory
-from flask_cors import CORS
-import json
-import os
-from datetime import datetime
 
-app = Flask(__name__, static_folder='static')
-CORS(app)
+from flask import Flask, request, jsonify
+from datetime import datetime
+import os
+import json
+
+app = Flask(__name__)
 
 DATA_DIR = "data"
 os.makedirs(DATA_DIR, exist_ok=True)
 
-@app.route("/")
-def index():
-    return send_from_directory('static', 'index.html')
+def get_date_key(date_str=None):
+    if date_str:
+        return date_str
+    return datetime.now().strftime("%Y-%m-%d")
 
-@app.route("/save", methods=["POST"])
-def save_data():
+@app.route("/summary", methods=["POST"])
+def receive_summary():
     data = request.json
-    date = data.get("date")
-    content = data.get("data")
-    if not date or not content:
-        return jsonify({"error": "Invalid data"}), 400
-    with open(f"{DATA_DIR}/{date}.json", "w", encoding="utf-8") as f:
-        json.dump(content, f, ensure_ascii=False, indent=2)
-    return jsonify({"status": "ok"})
+    date_key = data.get("date") or get_date_key()
+    filepath = os.path.join(DATA_DIR, f"{date_key}.json")
+    with open(filepath, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    return {"status": "saved", "date": date_key}
 
-@app.route("/summary/<date>", methods=["GET"])
-def get_data(date):
-    file_path = f"{DATA_DIR}/{date}.json"
-    if not os.path.exists(file_path):
-        return jsonify({"error": "Data not found"}), 404
-    with open(file_path, "r", encoding="utf-8") as f:
-        content = json.load(f)
-    return jsonify({"date": date, "data": content})
-
-if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+@app.route("/summary/latest", methods=["GET"])
+def get_latest_summary():
+    files = sorted(os.listdir(DATA_DIR), reverse=True)[:2]
+    result = {}
+    for file in files:
+        path = os.path.join(DATA_DIR, file)
+        with open(path, encoding="utf-8") as f:
+            content = json.load(f)
+            summary = {}
+            for meal in content.get("meals", []):
+                name = meal.get("meal")
+                nutrients = {"カロリー": 0, "たんぱく質": 0, "脂質": 0,
+                             "炭水化物": 0, "食物繊維": 0, "塩分": 0}
+                for food in meal.get("foods", []):
+                    nutrients["カロリー"] += food.get("calories", 0)
+                    nutrients["たんぱく質"] += food.get("protein", 0)
+                    nutrients["脂質"] += food.get("fat", 0)
+                    nutrients["炭水化物"] += food.get("carbs", 0)
+                    nutrients["食物繊維"] += food.get("fiber", 0)
+                    nutrients["塩分"] += food.get("salt", 0)
+                summary[name] = {k: round(v, 1) for k, v in nutrients.items()}
+            result[file.replace(".json", "")] = summary
+    return jsonify(result)

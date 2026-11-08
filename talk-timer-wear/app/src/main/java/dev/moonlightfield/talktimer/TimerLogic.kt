@@ -48,6 +48,29 @@ object TimerLogic {
         Pattern.LONG -> longArrayOf(0, 800)
     }
 
+    /** How strongly alerts buzz. The pulse count stays the same so patterns remain recognisable. */
+    enum class Strength(val onScale: Double, val amplitude: Int) {
+        WEAK(0.7, 90),
+        NORMAL(1.0, 180),
+        STRONG(1.6, 255),
+        ;
+
+        fun next(): Strength = entries[(ordinal + 1) % entries.size]
+    }
+
+    /** [waveform] with the "on" segments (odd indexes) stretched for the given strength. */
+    fun waveform(pattern: Pattern, strength: Strength): LongArray =
+        waveform(pattern).mapIndexed { i, ms ->
+            if (i % 2 == 1) Math.round(ms * strength.onScale) else ms
+        }.toLongArray()
+
+    /** How long the whole waveform takes to play, in ms. */
+    fun durationMs(pattern: Pattern, strength: Strength): Long = waveform(pattern, strength).sum()
+
+    /** Amplitudes matching [waveform]: 0 for the pauses, the strength's amplitude for the buzzes. */
+    fun amplitudes(pattern: Pattern, strength: Strength): IntArray =
+        IntArray(waveform(pattern).size) { i -> if (i % 2 == 1) strength.amplitude else 0 }
+
     enum class Stage { GO, WARN, STOP, OVER }
 
     /** Ring colour stage: green, yellow from 3 min left, red from 1 min left. */
@@ -71,4 +94,12 @@ object TimerLogic {
         if (ms >= 0) ceil(ms / 60_000.0).toLong() else (-ms) / 60_000
 
     fun clampMinutes(minutes: Int): Int = minutes.coerceIn(MIN_MINUTES, MAX_MINUTES)
+
+    /** Whether a plain tap on the timer pauses/starts it. With the lock on, pausing needs a long press. */
+    fun tapToggles(status: Status, longPressToPause: Boolean): Boolean =
+        !(longPressToPause && status == Status.RUNNING)
+
+    /** The display stays on only while counting (including overtime), never while idle or paused. */
+    fun shouldKeepScreenOn(status: Status, enabled: Boolean): Boolean =
+        enabled && status == Status.RUNNING
 }

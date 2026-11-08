@@ -9,10 +9,20 @@ import android.os.VibratorManager
 
 object Haptics {
 
-    fun play(context: Context, pattern: TimerLogic.Pattern) {
-        val vibrator = vibrator(context) ?: return
-        if (!vibrator.hasVibrator()) return
-        val effect = VibrationEffect.createWaveform(TimerLogic.waveform(pattern), -1)
+    /** Starts the vibration and returns how long it lasts in ms (0 if the watch cannot vibrate). */
+    fun play(
+        context: Context,
+        pattern: TimerLogic.Pattern,
+        strength: TimerLogic.Strength = Settings.get(context).vibration,
+    ): Long {
+        val vibrator = vibrator(context) ?: return 0
+        if (!vibrator.hasVibrator()) return 0
+        val timings = TimerLogic.waveform(pattern, strength)
+        val effect = if (vibrator.hasAmplitudeControl()) {
+            VibrationEffect.createWaveform(timings, TimerLogic.amplitudes(pattern, strength), -1)
+        } else {
+            VibrationEffect.createWaveform(timings, -1)
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             // "Alarm" usage keeps working while the watch is in do-not-disturb / theatre mode
             // as far as the system allows, which is what a speaker relies on.
@@ -21,6 +31,7 @@ object Haptics {
             @Suppress("DEPRECATION")
             vibrator.vibrate(effect)
         }
+        return TimerLogic.durationMs(pattern, strength)
     }
 
     private fun vibrator(context: Context): Vibrator? =

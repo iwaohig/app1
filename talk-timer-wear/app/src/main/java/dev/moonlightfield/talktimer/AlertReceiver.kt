@@ -3,6 +3,8 @@ package dev.moonlightfield.talktimer
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 
 /** Fires the vibration for one alert, and chains the next overtime reminder. */
 class AlertReceiver : BroadcastReceiver() {
@@ -14,23 +16,36 @@ class AlertReceiver : BroadcastReceiver() {
         // Ignore alarms left over from a run that was paused, reset or restarted.
         if (state.status != Status.RUNNING || state.endAtMillis != endAt) return
 
-        when (intent.getIntExtra(AlarmScheduler.EXTRA_KIND, -1)) {
+        // Vibrate first: it is the one thing a speaker relies on. Bookkeeping comes after.
+        val vibrationMs = when (intent.getIntExtra(AlarmScheduler.EXTRA_KIND, -1)) {
             AlarmScheduler.KIND_POINT -> {
                 val sec = intent.getIntExtra(AlarmScheduler.EXTRA_REMAINING_SEC, 0)
-                Haptics.play(context, TimerLogic.patternFor(sec))
+                val ms = Haptics.play(context, TimerLogic.patternFor(sec))
                 // The ring colour shown by the tile/complication changes at 3 min and 1 min left.
                 if (sec == 180 || sec == 60) TimerController.refreshWidgets(context)
+                ms
             }
             AlarmScheduler.KIND_TIME_UP -> {
-                Haptics.play(context, TimerLogic.Pattern.LONG)
+                val ms = Haptics.play(context, TimerLogic.Pattern.LONG)
                 AlarmScheduler.scheduleOvertime(context, endAt, 1)
                 TimerController.refreshWidgets(context)
+                ms
             }
             AlarmScheduler.KIND_OVERTIME -> {
                 val over = intent.getIntExtra(AlarmScheduler.EXTRA_OVER_MINUTES, 1)
-                Haptics.play(context, TimerLogic.Pattern.LONG)
+                val ms = Haptics.play(context, TimerLogic.Pattern.LONG)
                 AlarmScheduler.scheduleOvertime(context, endAt, over + 1)
+                ms
             }
+            else -> 0L
+        }
+
+        // The system cancels a vibration when the app that started it dies, and a background
+        // app can be killed as soon as this receiver returns. Holding the broadcast open until
+        // the waveform has finished keeps the process alive so the whole pattern is felt.
+        if (vibrationMs > 0) {
+            val pending = goAsync()
+            Handler(Looper.getMainLooper()).postDelayed({ pending.finish() }, vibrationMs + 300)
         }
     }
 }

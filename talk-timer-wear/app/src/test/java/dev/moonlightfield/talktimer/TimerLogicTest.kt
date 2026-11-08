@@ -15,6 +15,43 @@ class TimerLogicTest {
     }
 
     @Test
+    fun keepScreenOn_onlyWhileRunningAndEnabled() {
+        assertEquals(true, TimerLogic.shouldKeepScreenOn(Status.RUNNING, enabled = true))
+        assertEquals(false, TimerLogic.shouldKeepScreenOn(Status.RUNNING, enabled = false))
+        assertEquals(false, TimerLogic.shouldKeepScreenOn(Status.PAUSED, enabled = true))
+        assertEquals(false, TimerLogic.shouldKeepScreenOn(Status.IDLE, enabled = true))
+    }
+
+    @Test
+    fun tapToggles_lockedOnlyWhileRunning() {
+        assertEquals(false, TimerLogic.tapToggles(Status.RUNNING, longPressToPause = true))
+        assertEquals(true, TimerLogic.tapToggles(Status.RUNNING, longPressToPause = false))
+        assertEquals(true, TimerLogic.tapToggles(Status.PAUSED, longPressToPause = true))
+        assertEquals(true, TimerLogic.tapToggles(Status.IDLE, longPressToPause = true))
+    }
+
+    @Test
+    fun strength_keepsPulseCountAndScalesBuzzes() {
+        val p = TimerLogic.Pattern.SHORT_3
+        val base = TimerLogic.waveform(p)
+        for (s in TimerLogic.Strength.entries) {
+            val w = TimerLogic.waveform(p, s)
+            assertEquals(base.size, w.size)
+            assertEquals(base.size, TimerLogic.amplitudes(p, s).size)
+            // Pauses (even indexes) are unchanged so the rhythm stays recognisable.
+            for (i in base.indices step 2) assertEquals(base[i], w[i])
+        }
+        assertEquals(105L, TimerLogic.waveform(TimerLogic.Pattern.SHORT_1, TimerLogic.Strength.WEAK)[1])
+        assertEquals(150L, TimerLogic.waveform(TimerLogic.Pattern.SHORT_1, TimerLogic.Strength.NORMAL)[1])
+        assertEquals(1280L, TimerLogic.waveform(TimerLogic.Pattern.LONG, TimerLogic.Strength.STRONG)[1])
+        assertEquals(0, TimerLogic.amplitudes(p, TimerLogic.Strength.STRONG)[0])
+        assertEquals(255, TimerLogic.amplitudes(p, TimerLogic.Strength.STRONG)[1])
+        assertEquals(TimerLogic.Strength.WEAK, TimerLogic.Strength.STRONG.next())
+        assertEquals(750L, TimerLogic.durationMs(TimerLogic.Pattern.SHORT_3, TimerLogic.Strength.NORMAL))
+        assertEquals(1280L, TimerLogic.durationMs(TimerLogic.Pattern.LONG, TimerLogic.Strength.STRONG))
+    }
+
+    @Test
     fun alertPoints_otherLengths() {
         assertEquals(listOf(22 * 60 + 30) + minutes(10, 5, 3, 1), TimerLogic.alertPoints(45 * 60))
         assertEquals(minutes(5, 3, 1), TimerLogic.alertPoints(10 * 60))

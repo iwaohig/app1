@@ -27,9 +27,14 @@ class RemainingComplicationService : SuspendingComplicationDataSourceService() {
 
     companion object {
         fun requestUpdate(context: Context) {
-            ComplicationDataSourceUpdateRequester.create(
-                context, ComponentName(context, RemainingComplicationService::class.java),
-            ).requestUpdateAll()
+            // Same reason as TimerTileService.requestUpdate: use the application context and
+            // never let a refresh failure crash an alert.
+            val app = context.applicationContext
+            runCatching {
+                ComplicationDataSourceUpdateRequester.create(
+                    app, ComponentName(app, RemainingComplicationService::class.java),
+                ).requestUpdateAll()
+            }
         }
     }
 

@@ -1,9 +1,12 @@
 package dev.moonlightfield.talktimer.ui
 
 import android.text.format.DateFormat
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,8 +36,11 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.rotary.onRotaryScrollEvent
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -43,6 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
 import dev.moonlightfield.talktimer.R
@@ -59,6 +66,7 @@ private object Palette {
     val warn = Color(0xFFFFC23D)
     val stop = Color(0xFFFF5A4E)
     val stopDim = Color(0xFF5A1F1B)
+    val goDim = Color(0xFF1E5A36)
     val track = Color(0xFF1F2329)
     val dim = Color(0xFF8A8F98)
     val soft = Color(0xFFA6ABB3)
@@ -83,6 +91,8 @@ fun TimerScreen(
     onReset: () -> Unit,
     onChangeMinutes: (Int) -> Unit,
     onInfo: () -> Unit,
+    onSettings: () -> Unit,
+    longPressToPause: Boolean,
 ) {
     // Redraw every second while interactive. Ambient mode redraws on ambientTick instead.
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
@@ -99,11 +109,12 @@ fun TimerScreen(
         if (ambient) {
             AmbientContent(state, now)
         } else {
-            InteractiveContent(state, now, onToggle, onReset, onChangeMinutes, onInfo)
+            InteractiveContent(state, now, onToggle, onReset, onChangeMinutes, onInfo, onSettings, longPressToPause)
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun InteractiveContent(
     state: TimerState,
@@ -112,12 +123,20 @@ private fun InteractiveContent(
     onReset: () -> Unit,
     onChangeMinutes: (Int) -> Unit,
     onInfo: () -> Unit,
+    onSettings: () -> Unit,
+    longPressToPause: Boolean,
 ) {
     val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
     val remaining = state.remainingMs(now)
     val over = remaining <= 0
     val blinkOn = (now / 500) % 2 == 0L
     val idle = state.status == Status.IDLE
+    val tapToggles = TimerLogic.tapToggles(state.status, longPressToPause)
+
+    // A tap while locked does nothing except make the "hold to pause" hint stand out briefly.
+    var hintUntil by remember { mutableLongStateOf(0L) }
+    val hintEmphasised = now < hintUntil
 
     // Rotating the crown changes the length while idle. One detent is roughly 1 minute.
     val focusRequester = remember { FocusRequester() }
@@ -140,7 +159,17 @@ private fun InteractiveContent(
             }
             .focusRequester(focusRequester)
             .focusable()
-            .clickable(onClick = onToggle),
+            .combinedClickable(
+                onClick = {
+                    if (tapToggles) onToggle() else hintUntil = System.currentTimeMillis() + 2000
+                },
+                onLongClick = if (tapToggles) null else {
+                    {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onToggle()
+                    }
+                },
+            ),
         contentAlignment = Alignment.Center,
     ) {
         Ring(
@@ -197,7 +226,10 @@ private fun InteractiveContent(
                         color = Palette.go, fontSize = 11.sp, fontWeight = FontWeight.Medium,
                     )
                     Spacer(Modifier.height(4.dp))
-                    RoundButton("i", stringResource(R.string.about), onInfo)
+                    Row {
+                        RoundButton("i", stringResource(R.string.about), onInfo)
+                        RoundIconButton(R.drawable.ic_settings, stringResource(R.string.settings), onSettings)
+                    }
                 }
                 Status.PAUSED -> {
                     Text(
@@ -205,17 +237,20 @@ private fun InteractiveContent(
                         color = Palette.dim, fontSize = 11.sp, fontWeight = FontWeight.Medium,
                     )
                     Spacer(Modifier.height(4.dp))
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(50))
-                            .background(Palette.chip)
-                            .clickable(onClick = onReset)
-                            .padding(horizontal = 14.dp, vertical = 5.dp),
-                    ) {
-                        Text(stringResource(R.string.reset), color = Color.White, fontSize = 11.sp)
+                    // After the talk: one obvious way to finish, next to resuming.
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        PillButton(stringResource(R.string.resume), Palette.goDim, onToggle)
+                        PillButton(stringResource(R.string.finish), Palette.stopDim, onReset)
                     }
                 }
-                Status.RUNNING -> Unit
+                Status.RUNNING -> if (!tapToggles) {
+                    Text(
+                        stringResource(R.string.hold_to_pause),
+                        color = if (hintEmphasised) Color.White else Palette.dim,
+                        fontSize = 11.sp,
+                        fontWeight = if (hintEmphasised) FontWeight.Medium else FontWeight.Normal,
+                    )
+                }
             }
         }
     }
@@ -285,6 +320,36 @@ private fun RoundButton(label: String, description: String, onClick: () -> Unit)
         contentAlignment = Alignment.Center,
     ) {
         Text(label, color = Color.White, fontSize = 16.sp)
+    }
+}
+
+@Composable
+private fun PillButton(label: String, color: Color, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(50))
+            .background(color)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 7.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(label, color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+    }
+}
+
+@Composable
+private fun RoundIconButton(@DrawableRes icon: Int, description: String, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .padding(horizontal = 4.dp)
+            .size(26.dp)
+            .clip(CircleShape)
+            .background(Palette.chip)
+            .clickable(onClick = onClick)
+            .semantics { contentDescription = description },
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(painterResource(icon), contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
     }
 }
 

@@ -18,6 +18,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import dev.moonlightfield.talktimer.MainActivity
 import dev.moonlightfield.talktimer.R
 import dev.moonlightfield.talktimer.Status
+import dev.moonlightfield.talktimer.TimerController
 import dev.moonlightfield.talktimer.TimerLogic
 import dev.moonlightfield.talktimer.TimerStore
 
@@ -26,15 +27,29 @@ class TimerTileService : TileService() {
 
     companion object {
         private const val RESOURCES_VERSION = "1"
+        private const val ID_START = "start"
+        private const val ID_FINISH = "finish"
 
         fun requestUpdate(context: Context) {
-            getUpdater(context).requestUpdate(TimerTileService::class.java)
+            // The updater binds to a service, which a BroadcastReceiver's own context is not
+            // allowed to do (ReceiverCallNotAllowedException), so always go through the
+            // application context. A failed refresh must never take the alert down with it.
+            runCatching {
+                getUpdater(context.applicationContext).requestUpdate(TimerTileService::class.java)
+            }
         }
     }
 
     override fun onTileRequest(
         requestParams: RequestBuilders.TileRequest,
     ): ListenableFuture<TileBuilders.Tile> = CallbackToFutureAdapter.getFuture { completer ->
+        // "Finish" is a load action: the tile asks for a fresh layout with this clickable id,
+        // so the timer can be stopped right here without opening the app.
+        if (requestParams.currentState.lastClickableId == ID_FINISH &&
+            TimerStore.get(this).status != Status.IDLE
+        ) {
+            TimerController.reset(this)
+        }
         val tile = TileBuilders.Tile.Builder()
             .setResourcesVersion(RESOURCES_VERSION)
             .setTileTimeline(TimelineBuilders.Timeline.fromLayoutElement(layout()))
@@ -78,24 +93,22 @@ class TimerTileService : TileService() {
             )
             .build()
 
-        val button = LayoutElementBuilders.Box.Builder()
-            .setWidth(dp(100f))
-            .setHeight(dp(44f))
-            .setModifiers(
-                ModifiersBuilders.Modifiers.Builder()
-                    .setClickable(
-                        ModifiersBuilders.Clickable.Builder().setId("start").setOnClick(launch).build()
+        val buttons: LayoutElementBuilders.LayoutElement = if (running) {
+            // While a talk is on: go back to the timer, or stop it outright after the talk.
+            LayoutElementBuilders.Row.Builder()
+                .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
+                .addContent(pill(buttonLabel, 72f, 0xFF4CD17A.toInt(), 0xFF0B1A10.toInt(), ID_START, launch))
+                .addContent(LayoutElementBuilders.Spacer.Builder().setWidth(dp(8f)).build())
+                .addContent(
+                    pill(
+                        getString(R.string.finish), 72f, 0xFF5A1F1B.toInt(), 0xFFFFFFFF.toInt(),
+                        ID_FINISH, ActionBuilders.LoadAction.Builder().build(),
                     )
-                    .setBackground(
-                        ModifiersBuilders.Background.Builder()
-                            .setColor(argb(0xFF4CD17A.toInt()))
-                            .setCorner(ModifiersBuilders.Corner.Builder().setRadius(dp(22f)).build())
-                            .build()
-                    )
-                    .build()
-            )
-            .addContent(text(buttonLabel, 16f, 0xFF0B1A10.toInt(), bold = true))
-            .build()
+                )
+                .build()
+        } else {
+            pill(buttonLabel, 100f, 0xFF4CD17A.toInt(), 0xFF0B1A10.toInt(), ID_START, launch)
+        }
 
         val column = LayoutElementBuilders.Column.Builder()
             .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
@@ -103,7 +116,7 @@ class TimerTileService : TileService() {
             .addContent(spacer(4f))
             .addContent(text(big, 34f, 0xFFFFFFFF.toInt(), bold = true))
             .addContent(spacer(10f))
-            .addContent(button)
+            .addContent(buttons)
             .build()
 
         return LayoutElementBuilders.Box.Builder()
@@ -114,6 +127,30 @@ class TimerTileService : TileService() {
             .addContent(column)
             .build()
     }
+
+    private fun pill(
+        label: String,
+        width: Float,
+        background: Int,
+        foreground: Int,
+        id: String,
+        action: ActionBuilders.Action,
+    ) = LayoutElementBuilders.Box.Builder()
+        .setWidth(dp(width))
+        .setHeight(dp(44f))
+        .setModifiers(
+            ModifiersBuilders.Modifiers.Builder()
+                .setClickable(ModifiersBuilders.Clickable.Builder().setId(id).setOnClick(action).build())
+                .setBackground(
+                    ModifiersBuilders.Background.Builder()
+                        .setColor(argb(background))
+                        .setCorner(ModifiersBuilders.Corner.Builder().setRadius(dp(22f)).build())
+                        .build()
+                )
+                .build()
+        )
+        .addContent(text(label, 16f, foreground, bold = true))
+        .build()
 
     private fun text(value: String, size: Float, color: Int, bold: Boolean = false) =
         LayoutElementBuilders.Text.Builder()

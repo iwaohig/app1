@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">プレゼンタイマー</string>
+    <string name="app_name_short">発表</string>
+    <string name="label_left">残り</string>
+    <string name="label_over">超過</string>
+    <string name="now_only">現在 %1$s</string>
+    <string name="now_and_end">現在 %1$s → 終了 %2$s</string>
+    <string name="tap_to_start">タップで開始</string>
+    <string name="paused">一時停止中</string>
+    <string name="reset">リセット</string>
+    <string name="decrease">1分短くする</string>
+    <string name="increase">1分長くする</string>
+    <string name="minutes_short">%d分</string>
+    <string name="tile_start">開始</string>
+    <string name="tile_open">開く</string>
+    <string name="tile_description">ワンタップでプレゼンタイマーを開始</string>
+    <string name="complication_label">発表の残り時間</string>
+    <string name="notification_channel">プレゼンタイマー</string>
+</resources>

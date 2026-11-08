@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">발표 타이머</string>
+    <string name="app_name_short">발표</string>
+    <string name="label_left">남은 시간</string>
+    <string name="label_over">초과</string>
+    <string name="now_only">현재 %1$s</string>
+    <string name="now_and_end">현재 %1$s → 종료 %2$s</string>
+    <string name="tap_to_start">탭하여 시작</string>
+    <string name="paused">일시정지</string>
+    <string name="reset">재설정</string>
+    <string name="decrease">1분 줄이기</string>
+    <string name="increase">1분 늘리기</string>
+    <string name="minutes_short">%d분</string>
+    <string name="tile_start">시작</string>
+    <string name="tile_open">열기</string>
+    <string name="tile_description">한 번 탭으로 발표 타이머 시작</string>
+    <string name="complication_label">발표 남은 시간</string>
+    <string name="notification_channel">발표 타이머</string>
+</resources>

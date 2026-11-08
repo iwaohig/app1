@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Talk Timer</string>
+    <string name="app_name_short">Talk</string>
+    <string name="label_left">Left</string>
+    <string name="label_over">Over</string>
+    <!-- %1$s = current time -->
+    <string name="now_only">Now %1$s</string>
+    <!-- %1$s = current time, %2$s = planned end time -->
+    <string name="now_and_end">Now %1$s → Ends %2$s</string>
+    <string name="tap_to_start">Tap to start</string>
+    <string name="paused">Paused</string>
+    <string name="reset">Reset</string>
+    <string name="decrease">1 minute shorter</string>
+    <string name="increase">1 minute longer</string>
+    <!-- Ambient screen, %d = whole minutes -->
+    <string name="minutes_short">%d min</string>
+    <string name="tile_start">Start</string>
+    <string name="tile_open">Open</string>
+    <string name="tile_description">Start your talk timer with one tap</string>
+    <string name="complication_label">Talk time left</string>
+    <string name="notification_channel">Talk timer</string>
+</resources>

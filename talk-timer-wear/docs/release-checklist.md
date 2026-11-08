@@ -14,7 +14,7 @@
     -keyalg RSA -keysize 4096 -validity 10000
   ```
   鍵ファイルとパスワードはリポジトリに入れない。Play App Signing を有効にする。
-- [ ] **リリース用 AAB を作る**：`./gradlew bundleRelease`（署名設定を追加してから）
+- [ ] **リリース用 AAB を作る**：`keystore.properties` を用意して `./gradlew bundleRelease`（手順は `docs/internal-testing.md`）
 - [ ] **スクリーンショット**：Wear OS 用に1枚以上、1:1・384×384 px 以上、端末の枠や画面にない文字を入れない。タイルの画面も載せる（推奨）。Android Studio の Wear OS エミュレータで「Play Store Compatible」を選んで撮影する
 - [ ] **アイコン**：512×512 px（32ビット PNG）
 

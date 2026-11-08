@@ -1,3 +1,4 @@
+import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -5,6 +6,15 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
+
+// Upload-key settings for release builds. Never commit the key or this file.
+// Read from talk-timer-wear/keystore.properties, or from environment variables (for CI).
+val keystoreProps = Properties().apply {
+    val f = rootProject.file("keystore.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+fun signingValue(key: String, env: String): String? =
+    keystoreProps.getProperty(key) ?: System.getenv(env)
 
 android {
     namespace = "dev.moonlightfield.talktimer"
@@ -19,9 +29,26 @@ android {
         versionName = "0.1.0"
     }
 
+    signingConfigs {
+        val storePath = signingValue("storeFile", "TALKTIMER_KEYSTORE")
+        if (storePath != null) {
+            create("release") {
+                storeFile = rootProject.file(storePath)
+                storePassword = signingValue("storePassword", "TALKTIMER_KEYSTORE_PASSWORD")
+                keyAlias = signingValue("keyAlias", "TALKTIMER_KEY_ALIAS")
+                keyPassword = signingValue("keyPassword", "TALKTIMER_KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // Shrink code and resources: smaller download and less memory on the watch.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            // Without keystore.properties the release build is unsigned and cannot be uploaded.
+            signingConfig = signingConfigs.findByName("release")
         }
     }
 

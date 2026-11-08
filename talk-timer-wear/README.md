@@ -60,6 +60,7 @@ cd talk-timer-wear
 ./gradlew assembleDebug          # app/build/outputs/apk/debug/app-debug.apk ができる
 ./gradlew testDebugUnitTest      # 単体テスト
 ./gradlew lintDebug              # Lint
+./gradlew bundleRelease          # リリース用 AAB（keystore.properties が必要。docs/internal-testing.md 参照）
 ```
 
 Android Studio の場合は `talk-timer-wear` フォルダを開いてください。
@@ -84,6 +85,7 @@ Android Studio の場合は `talk-timer-wear` フォルダを開いてくださ�
 - `docs/privacy/index.html`：プライバシーポリシー（日・英・韓・中の4言語）。`https://moonlightfield.dev/apps/talktimer/privacy` に置く
 - `fastlane/metadata/android/`：Google Play のストア掲載文（4言語）
 - `docs/release-checklist.md`：公開までのチェックリスト（データセーフティ、正確なアラームの申告など）
+- `docs/internal-testing.md`：Google Play の内部テストで配る手順（アップロード鍵、リリースビルド、Play Console の操作）
 
 ## 権限
 

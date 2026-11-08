@@ -1,4 +1,4 @@
-package com.iwaohig.talktimer.ui
+package dev.moonlightfield.talktimer.ui
 
 import android.text.format.DateFormat
 import androidx.compose.foundation.Canvas
@@ -45,10 +45,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
-import com.iwaohig.talktimer.R
-import com.iwaohig.talktimer.Status
-import com.iwaohig.talktimer.TimerLogic
-import com.iwaohig.talktimer.TimerState
+import dev.moonlightfield.talktimer.R
+import dev.moonlightfield.talktimer.Status
+import dev.moonlightfield.talktimer.TimerLogic
+import dev.moonlightfield.talktimer.TimerState
 import kotlinx.coroutines.delay
 import java.util.Date
 import kotlin.math.cos
@@ -82,6 +82,7 @@ fun TimerScreen(
     onToggle: () -> Unit,
     onReset: () -> Unit,
     onChangeMinutes: (Int) -> Unit,
+    onInfo: () -> Unit,
 ) {
     // Redraw every second while interactive. Ambient mode redraws on ambientTick instead.
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
@@ -98,7 +99,7 @@ fun TimerScreen(
         if (ambient) {
             AmbientContent(state, now)
         } else {
-            InteractiveContent(state, now, onToggle, onReset, onChangeMinutes)
+            InteractiveContent(state, now, onToggle, onReset, onChangeMinutes, onInfo)
         }
     }
 }
@@ -110,6 +111,7 @@ private fun InteractiveContent(
     onToggle: () -> Unit,
     onReset: () -> Unit,
     onChangeMinutes: (Int) -> Unit,
+    onInfo: () -> Unit,
 ) {
     val context = LocalContext.current
     val remaining = state.remainingMs(now)
@@ -189,10 +191,14 @@ private fun InteractiveContent(
 
             Spacer(Modifier.height(6.dp))
             when (state.status) {
-                Status.IDLE -> Text(
-                    stringResource(R.string.tap_to_start),
-                    color = Palette.go, fontSize = 11.sp, fontWeight = FontWeight.Medium,
-                )
+                Status.IDLE -> {
+                    Text(
+                        stringResource(R.string.tap_to_start),
+                        color = Palette.go, fontSize = 11.sp, fontWeight = FontWeight.Medium,
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    RoundButton("i", stringResource(R.string.about), onInfo)
+                }
                 Status.PAUSED -> {
                     Text(
                         if (blinkOn) stringResource(R.string.paused) else "",

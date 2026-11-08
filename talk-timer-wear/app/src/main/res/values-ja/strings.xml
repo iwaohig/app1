@@ -17,4 +17,12 @@
     <string name="tile_description">ワンタップでプレゼンタイマーを開始</string>
     <string name="complication_label">発表の残り時間</string>
     <string name="notification_channel">プレゼンタイマー</string>
+    <string name="about">このアプリについて</string>
+    <string name="version">バージョン %1$s</string>
+    <string name="developer">月光原技研（Moonlightfield）</string>
+    <string name="privacy_summary">このアプリは個人データを収集・外部送信・共有しません。タイマーの設定は時計の中だけに保存されます。</string>
+    <string name="privacy_open_on_phone">プライバシーポリシー（スマホで開く）</string>
+    <string name="opened_on_phone">スマホで開きました</string>
+    <string name="phone_unavailable">スマホに接続できません</string>
+    <string name="close">閉じる</string>
 </resources>

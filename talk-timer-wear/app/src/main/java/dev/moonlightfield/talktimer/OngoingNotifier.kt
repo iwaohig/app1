@@ -1,4 +1,4 @@
-package com.iwaohig.talktimer
+package dev.moonlightfield.talktimer
 
 import android.Manifest
 import android.app.NotificationChannel

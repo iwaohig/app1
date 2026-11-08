@@ -1,4 +1,4 @@
-package com.iwaohig.talktimer
+package dev.moonlightfield.talktimer
 
 import android.app.AlarmManager
 import android.app.PendingIntent
@@ -17,7 +17,7 @@ object AlarmScheduler {
     private const val SLOT_OVERTIME = 9
     private const val MAX_ALERT_SLOTS = 5
 
-    const val ACTION_ALERT = "com.iwaohig.talktimer.ALERT"
+    const val ACTION_ALERT = "dev.moonlightfield.talktimer.ALERT"
     const val EXTRA_KIND = "kind"
     const val EXTRA_REMAINING_SEC = "remainingSec"
     const val EXTRA_OVER_MINUTES = "overMinutes"

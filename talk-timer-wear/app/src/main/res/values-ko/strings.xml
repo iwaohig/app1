@@ -17,4 +17,12 @@
     <string name="tile_description">한 번 탭으로 발표 타이머 시작</string>
     <string name="complication_label">발표 남은 시간</string>
     <string name="notification_channel">발표 타이머</string>
+    <string name="about">앱 정보</string>
+    <string name="version">버전 %1$s</string>
+    <string name="developer">Gekkohara Giken (Moonlightfield)</string>
+    <string name="privacy_summary">이 앱은 개인 데이터를 수집, 외부 전송 또는 공유하지 않습니다. 타이머 설정은 시계에만 저장됩니다.</string>
+    <string name="privacy_open_on_phone">개인정보처리방침 (휴대전화에서 열기)</string>
+    <string name="opened_on_phone">휴대전화에서 열었습니다</string>
+    <string name="phone_unavailable">휴대전화에 연결할 수 없습니다</string>
+    <string name="close">닫기</string>
 </resources>

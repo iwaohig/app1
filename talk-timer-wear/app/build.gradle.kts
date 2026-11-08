@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.iwaohig.talktimer"
+    namespace = "dev.moonlightfield.talktimer"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.iwaohig.talktimer"
+        applicationId = "dev.moonlightfield.talktimer"
         // Wear OS 3 (API 30) and later. Pixel Watch ships with Wear OS 3.5+.
         minSdk = 30
         targetSdk = 36
@@ -59,6 +59,7 @@ dependencies {
 
     implementation(libs.androidx.wear)
     implementation(libs.androidx.wear.ongoing)
+    implementation(libs.androidx.wear.remote.interactions)
     implementation(libs.androidx.wear.compose.material3)
     implementation(libs.androidx.wear.compose.foundation)
 

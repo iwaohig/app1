@@ -1,5 +1,7 @@
 # プレゼンタイマー（Pixel Watch / Wear OS）
 
+月光原技研（Moonlightfield）のアプリ。パッケージ名は `dev.moonlightfield.talktimer`（公開後は変更不可）。
+
 発表の残り時間を手首の振動で知らせる Wear OS アプリです。スマホアプリなしで、時計単体で動きます。
 
 ## できること
@@ -25,11 +27,12 @@
 - タイル：持ち時間を表示し、ワンタップで開始
 - コンプリケーション：ウォッチフェイスの枠に残り時間を表示（ウォッチフェイス側が自動でカウントダウン）
 - 日本語・英語・韓国語・中国語（簡体字）。時計の言語設定で自動的に切り替わります
+- 「このアプリについて」画面（待機中の画面の「i」ボタン）：バージョン、開発者名、プライバシーの説明と、プライバシーポリシーをスマホで開くボタン
 
 ## フォルダ構成
 
 ```
-app/src/main/java/com/iwaohig/talktimer/
+app/src/main/java/dev/moonlightfield/talktimer/
   TimerLogic.kt        振動のタイミング・パターン・色・表示形式（純粋なロジック）
   TimerState.kt        タイマーの状態
   TimerStore.kt        状態の保存（アプリが終了しても残る）
@@ -40,6 +43,8 @@ app/src/main/java/com/iwaohig/talktimer/
   OngoingNotifier.kt   Ongoing Activity（計測中の通知とアイコン）
   MainActivity.kt      画面と常時表示モード
   ui/TimerScreen.kt    時計の画面（Compose for Wear OS）
+  ui/AboutScreen.kt    このアプリについて（プライバシーポリシー）
+  Links.kt             プライバシーポリシーの URL と、スマホで開く処理
   tile/                タイル
   complication/        コンプリケーション
 app/src/main/res/values*/strings.xml   各言語の文字
@@ -86,5 +91,6 @@ Android Studio の場合は `talk-timer-wear` フォルダを開いてくださ�
 
 - 実機（Pixel Watch）とエミュレータでの動作確認はまだです。ビルド・単体テスト・Lint のみ通しています
 - 計測中に時計を再起動すると、予約した振動は消えます（再起動時の再予約は未対応）
-- パッケージ名 `com.iwaohig.talktimer` は仮です。公開前に決め直す予定です（一度公開すると変更できません）
+- プライバシーポリシーのページ `https://moonlightfield.dev/apps/talktimer/privacy` はまだありません。公開前に作成してください（PDF 不可、誰でも見られる URL）
+- 署名鍵（アップロード鍵）はまだ作っていません。将来スマホ版と連動させる場合も同じパッケージ名・署名を使うので、最初に作って安全に保管してください
 - ライブラリは安定性を優先して 2025 年夏ごろの版を使っています。公開前に最新版へ更新を検討してください

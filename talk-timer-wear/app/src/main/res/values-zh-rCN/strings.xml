@@ -17,4 +17,12 @@
     <string name="tile_description">一键开始演讲计时</string>
     <string name="complication_label">演讲剩余时间</string>
     <string name="notification_channel">演讲计时器</string>
+    <string name="about">关于此应用</string>
+    <string name="version">版本 %1$s</string>
+    <string name="developer">Gekkohara Giken (Moonlightfield)</string>
+    <string name="privacy_summary">此应用不会收集、上传或共享任何个人数据。计时器设置仅保存在手表上。</string>
+    <string name="privacy_open_on_phone">隐私政策（在手机上打开）</string>
+    <string name="opened_on_phone">已在手机上打开</string>
+    <string name="phone_unavailable">无法连接到手机</string>
+    <string name="close">关闭</string>
 </resources>

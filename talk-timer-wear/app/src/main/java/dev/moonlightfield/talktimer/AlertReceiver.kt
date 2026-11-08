@@ -1,4 +1,4 @@
-package com.iwaohig.talktimer
+package dev.moonlightfield.talktimer
 
 import android.content.BroadcastReceiver
 import android.content.Context

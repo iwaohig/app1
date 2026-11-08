@@ -1,4 +1,4 @@
-package com.iwaohig.talktimer.tile
+package dev.moonlightfield.talktimer.tile
 
 import android.content.Context
 import androidx.concurrent.futures.CallbackToFutureAdapter
@@ -15,11 +15,11 @@ import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.TileService
 import com.google.common.util.concurrent.ListenableFuture
-import com.iwaohig.talktimer.MainActivity
-import com.iwaohig.talktimer.R
-import com.iwaohig.talktimer.Status
-import com.iwaohig.talktimer.TimerLogic
-import com.iwaohig.talktimer.TimerStore
+import dev.moonlightfield.talktimer.MainActivity
+import dev.moonlightfield.talktimer.R
+import dev.moonlightfield.talktimer.Status
+import dev.moonlightfield.talktimer.TimerLogic
+import dev.moonlightfield.talktimer.TimerStore
 
 /** Swipe-left card: shows the set length and starts the timer with one tap. */
 class TimerTileService : TileService() {

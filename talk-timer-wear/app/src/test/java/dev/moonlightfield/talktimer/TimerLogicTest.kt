@@ -1,4 +1,4 @@
-package com.iwaohig.talktimer
+package dev.moonlightfield.talktimer
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

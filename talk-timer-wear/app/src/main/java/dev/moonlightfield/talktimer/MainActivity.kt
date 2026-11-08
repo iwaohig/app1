@@ -1,4 +1,4 @@
-package com.iwaohig.talktimer
+package dev.moonlightfield.talktimer
 
 import android.Manifest
 import android.content.Intent
@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.getValue
@@ -15,7 +16,8 @@ import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.ambient.AmbientLifecycleObserver
-import com.iwaohig.talktimer.ui.TimerScreen
+import dev.moonlightfield.talktimer.ui.AboutScreen
+import dev.moonlightfield.talktimer.ui.TimerScreen
 
 class MainActivity : ComponentActivity() {
 
@@ -25,6 +27,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private var ambient by mutableStateOf(false)
+    private var showAbout by mutableStateOf(false)
     /** Bumped once a minute in ambient mode so the low-power screen redraws. */
     private var ambientTick by mutableIntStateOf(0)
 
@@ -62,6 +65,15 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val state by TimerStore.state(this).collectAsStateWithLifecycle()
+            if (showAbout && !ambient) {
+                BackHandler { showAbout = false }
+                AboutScreen(
+                    versionName = packageManager.getPackageInfo(packageName, 0).versionName ?: "",
+                    onOpenPolicy = { Links.openOnPhone(this, Links.PRIVACY_POLICY_URL) },
+                    onClose = { showAbout = false },
+                )
+                return@setContent
+            }
             TimerScreen(
                 state = state,
                 ambient = ambient,
@@ -69,6 +81,7 @@ class MainActivity : ComponentActivity() {
                 onToggle = { TimerController.toggle(this) },
                 onReset = { TimerController.reset(this) },
                 onChangeMinutes = { delta -> TimerController.changeMinutes(this, delta) },
+                onInfo = { showAbout = true },
             )
         }
     }

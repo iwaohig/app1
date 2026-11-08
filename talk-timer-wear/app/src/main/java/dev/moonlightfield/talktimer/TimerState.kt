@@ -1,4 +1,4 @@
-package com.iwaohig.talktimer
+package dev.moonlightfield.talktimer
 
 enum class Status { IDLE, RUNNING, PAUSED }
 

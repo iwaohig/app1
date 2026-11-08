@@ -1,8 +1,8 @@
-package com.iwaohig.talktimer
+package dev.moonlightfield.talktimer
 
 import android.content.Context
-import com.iwaohig.talktimer.complication.RemainingComplicationService
-import com.iwaohig.talktimer.tile.TimerTileService
+import dev.moonlightfield.talktimer.complication.RemainingComplicationService
+import dev.moonlightfield.talktimer.tile.TimerTileService
 
 /** The only place that changes timer state. Keeps alarms, notification and widgets in step. */
 object TimerController {

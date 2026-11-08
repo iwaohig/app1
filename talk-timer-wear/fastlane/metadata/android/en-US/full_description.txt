@@ -1,0 +1,26 @@
+A Wear OS timer that tells you how much of your talk is left with a buzz on your wrist. It runs on your watch alone, so you never need to reach for your phone on stage.
+
+■ Just set the length
+Turn the crown to pick 1 to 180 minutes and tap to start. Then focus on your talk.
+
+■ Count the buzzes, know the time
+• Halfway, 10 min left, 5 min left: 1 short buzz
+• 3 min left: 2 short buzzes
+• 1 min left: 3 short buzzes
+• Time's up: 1 long buzz
+• Over time: 1 long buzz every minute
+Alert times are worked out from your talk length. A 60-minute talk buzzes at 30, 10, 5, 3 and 1 minutes left; a 20-minute talk at 10, 5, 3 and 1.
+
+■ Readable at a glance
+Big remaining time and a ring that turns yellow at 3 minutes left and red at 1 minute. The current time and planned end time are shown too, like "Now 2:07 PM → Ends 2:32 PM". Alerts fire on time even with the screen off.
+
+■ Tile and complication
+Start with one tap from the tile. Add the complication to show the time left on your favourite watch face.
+
+■ Privacy
+No personal data is collected or sent anywhere. No ads.
+
+Languages: English, 日本語, 한국어, 简体中文
+Works on Pixel Watch and other smartwatches with Wear OS 3 or later.
+
+GEKKOHARA GIKEN / Moonlightfield

@@ -79,6 +79,12 @@ Android Studio の場合は `talk-timer-wear` フォルダを開いてくださ�
 4. 時計のアプリ一覧から「プレゼンタイマー」を開く。初回は通知の許可を求められます（計測中のアイコン表示に使います。許可しなくても振動は鳴ります）
 5. タイルは時計の画面を左にスワイプして「＋」から、コンプリケーションはウォッチフェイスの編集画面から追加できます
 
+## 公開用の資料
+
+- `docs/privacy/index.html`：プライバシーポリシー（日・英・韓・中の4言語）。`https://moonlightfield.dev/apps/talktimer/privacy` に置く
+- `fastlane/metadata/android/`：Google Play のストア掲載文（4言語）
+- `docs/release-checklist.md`：公開までのチェックリスト（データセーフティ、正確なアラームの申告など）
+
 ## 権限
 
 | 権限 | 用途 |

@@ -1,0 +1,1 @@
+Watch-only talk timer. Buzzes at halfway and at 10, 5, 3 and 1 minutes left.

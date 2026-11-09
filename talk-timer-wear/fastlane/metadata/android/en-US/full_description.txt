@@ -1,7 +1,7 @@
 A Wear OS timer that tells you how much of your talk is left with a buzz on your wrist. It runs on your watch alone, so you never need to reach for your phone on stage.
 
 ■ Just set the length
-Turn the crown to pick 1 to 180 minutes and tap to start. Then focus on your talk.
+Turn the crown or tap − and + to pick 1 to 180 minutes, then tap to start. Then focus on your talk.
 
 ■ Count the buzzes, know the time
 • Halfway, 10 min left, 5 min left: 1 short buzz
@@ -9,10 +9,16 @@ Turn the crown to pick 1 to 180 minutes and tap to start. Then focus on your tal
 • 1 min left: 3 short buzzes
 • Time's up: 1 long buzz
 • Over time: 1 long buzz every minute
-Alert times are worked out from your talk length. A 60-minute talk buzzes at 30, 10, 5, 3 and 1 minutes left; a 20-minute talk at 10, 5, 3 and 1.
+Alert times are worked out from your talk length. A 60-minute talk buzzes at 30, 10, 5, 3 and 1 minutes left; a 20-minute talk at 10, 5, 3 and 1. Choose light, normal or strong vibration.
 
 ■ Readable at a glance
-Big remaining time and a ring that turns yellow at 3 minutes left and red at 1 minute. The current time and planned end time are shown too, like "Now 2:07 PM → Ends 2:32 PM". Alerts fire on time even with the screen off.
+Big remaining time and a ring that turns yellow at 3 minutes left and red at 1 minute. The current time and planned end time are shown too, like "Now 2:07 PM → Ends 2:32 PM". The screen stays on while timing, so a turn of the wrist shows the seconds.
+
+■ Controls that stay out of your way
+• While timing, press and hold to pause, so a brush of your sleeve won't stop it
+• Pausing shows Resume and Finish
+• Even after the watch goes back to the watch face, Finish on the tile stops the timer
+Keeping the screen on and hold-to-pause can be changed in settings. Alerts fire on time even with the screen off.
 
 ■ Tile and complication
 Start with one tap from the tile. Add the complication to show the time left on your favourite watch face.
